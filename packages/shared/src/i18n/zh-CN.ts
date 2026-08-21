@@ -565,7 +565,6 @@ export const zhCN = {
     title: "系统信息",
     description: "查看当前应用版本、构建标识和运行环境。",
     version: "版本号",
-    clientVersion: "客户端版本",
     releaseTime: "发版时间",
     build: "构建",
     client: "客户端",
@@ -574,6 +573,12 @@ export const zhCN = {
       mobileApp: "移动应用",
       pwa: "PWA",
       web: "网页",
+    },
+    deploymentPlatform: "部署平台",
+    deploymentPlatforms: {
+      cloudflare: "Cloudflare",
+      docker: "Docker",
+      unknown: "未知",
     },
     deployment: "自动部署方式",
     deploymentTriggers: {

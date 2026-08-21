@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { CircleCheck, Copy, ExternalLink } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useDeployedUpdateNotice } from "@/hooks/useDeployedUpdateNotice";
 import { detectWebClientKind } from "@/lib/client-environment";
+import { api, getConfiguredDesktopApiBaseUrl } from "@/lib/api";
+import { resolveDeploymentPlatform } from "@/lib/instance-runtime";
 import { cn } from "@/lib/utils";
 import { getReleaseTagForVersion, resolveLocalizedReleaseChanges } from "@/lib/version-check";
 import { copyTextToClipboard } from "./settings-utils";
@@ -36,7 +39,11 @@ const getDeploymentDescription = (t: (key: string) => string) => {
   return `${trigger} · ${method}`;
 };
 
-export const getWebSystemInfoItems = (t: (key: string) => string, language: string): SystemInfoItem[] => {
+export const getWebSystemInfoItems = (
+  t: (key: string) => string,
+  language: string,
+  instanceRuntime?: string | null,
+): SystemInfoItem[] => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || t("systemInfo.unknown");
   const userAgent = navigator.userAgent;
   const clientKind = detectWebClientKind({
@@ -48,10 +55,7 @@ export const getWebSystemInfoItems = (t: (key: string) => string, language: stri
   });
 
   return [
-    {
-      label: t("systemInfo.clientVersion"),
-      value: `v${__EDGEEVER_APP_VERSION__}`,
-    },
+    { label: t("systemInfo.version"), value: `v${__EDGEEVER_APP_VERSION__}` },
     {
       label: t("systemInfo.releaseTime"),
       value: __EDGEEVER_RELEASED_AT__
@@ -60,6 +64,10 @@ export const getWebSystemInfoItems = (t: (key: string) => string, language: stri
     },
     { label: t("systemInfo.build"), value: __EDGEEVER_BUILD_LABEL__ },
     { label: t("systemInfo.client"), value: t(`systemInfo.clients.${clientKind}`) },
+    {
+      label: t("systemInfo.deploymentPlatform"),
+      value: t(`systemInfo.deploymentPlatforms.${resolveDeploymentPlatform(instanceRuntime)}`),
+    },
     { label: t("systemInfo.deployment"), value: getDeploymentDescription(t) },
     ...(clientKind === "desktopApp"
       ? []
@@ -74,7 +82,18 @@ export const SystemInfoPanel = ({ active = true }: { active?: boolean }) => {
   const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
   const { release } = useDeployedUpdateNotice();
-  const infoItems = useMemo(() => getWebSystemInfoItems(t, i18n.language), [i18n.language, t]);
+  const instanceUrl = window.edgeeverDesktop?.isAvailable === true ? getConfiguredDesktopApiBaseUrl() : window.location.origin;
+  const healthQuery = useQuery({
+    queryKey: ["instance-health", instanceUrl],
+    queryFn: () => api.getInstanceHealth(),
+    enabled: active && Boolean(instanceUrl),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+  const infoItems = useMemo(
+    () => getWebSystemInfoItems(t, i18n.language, healthQuery.data?.runtime),
+    [healthQuery.data?.runtime, i18n.language, t],
+  );
   const releaseTag = release ? getReleaseTagForVersion(release.version) : null;
   const releaseHighlights = resolveLocalizedReleaseChanges(
     release?.changes ?? {},
