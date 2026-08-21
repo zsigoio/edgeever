@@ -48,7 +48,10 @@ export const getWebSystemInfoItems = (t: (key: string) => string, language: stri
   });
 
   return [
-    { label: t("systemInfo.version"), value: `v${__EDGEEVER_APP_VERSION__}` },
+    {
+      label: t("systemInfo.clientVersion"),
+      value: `v${__EDGEEVER_APP_VERSION__}`,
+    },
     {
       label: t("systemInfo.releaseTime"),
       value: __EDGEEVER_RELEASED_AT__
@@ -101,9 +104,12 @@ export const SystemInfoPanel = ({ active = true }: { active?: boolean }) => {
           <div className="min-w-0 flex-1 text-xs leading-5">
             <div className="font-semibold">{t("systemInfo.deployedUpdateTitle", { version: releaseTag?.replace(/^v/, "") ?? release.version })}</div>
             {releaseHighlights.length > 0 ? (
-              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-slate-600">
-                {releaseHighlights.map((highlight) => <li key={highlight}>{highlight}</li>)}
-              </ul>
+              <div className="mt-1 text-slate-600">
+                <div className="pl-4 font-medium">{t("systemInfo.releaseHighlightsLabel")}</div>
+                <ul className="mt-0.5 list-disc space-y-0.5 pl-4">
+                  {releaseHighlights.map((highlight) => <li key={highlight}>{highlight}</li>)}
+                </ul>
+              </div>
             ) : (
               <div className="mt-1 text-slate-500">{t("systemInfo.releaseNotesUnavailable")}</div>
             )}

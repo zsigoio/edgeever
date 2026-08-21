@@ -25,10 +25,8 @@ import type {
   AiPromptTemplate,
   AiPromptTemplateCreateInput,
   AiPromptTemplateUpdateInput,
-  AiAction,
-  AiTargetLanguage,
-  AiTone,
   AiStreamEvent,
+  AiGenerateInput,
   AiTagSuggestionPromptUpdateInput,
   AiTagSuggestionsRequestInput,
   AiTagSuggestionsResponse,
@@ -669,17 +667,7 @@ export const api = {
     }),
 
   streamAiGeneration: async (
-    payload: {
-      action: AiAction;
-      promptId?: string;
-      locale?: string;
-      title: string;
-      contentMarkdown: string;
-      stream?: boolean;
-      targetLanguage?: AiTargetLanguage;
-      tone?: AiTone;
-      instruction?: string;
-    },
+    payload: AiGenerateInput,
     options: { signal?: AbortSignal; onEvent: (event: AiStreamEvent) => void },
   ) => {
     const headers = new Headers({ "Content-Type": "application/json" });

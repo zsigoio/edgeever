@@ -1,11 +1,19 @@
 {
-  "version": "1.35.2",
+  "version": "1.36.0",
   "changes": {
     "en-US": [
-      "Deliver current Android and native iOS builds to Google Play and the App Store; Play builds no longer request the sideload-only package installation permission."
+      "Use the AI assistant at the editor cursor through the slash menu or Space on an empty block, with attachments, custom instructions, Enter-to-generate, stable controls, and insertion at the original position.",
+      "Show the active deployment platform in system information.",
+      "Improve Mermaid preview sizing and presentation.",
+      "Keep sign-out scoped clearly to the current device.",
+      "Improve Cloudflare update summaries and preserve deployment failure diagnostics for easier troubleshooting."
     ],
     "zh-CN": [
-      "将当前 Android 与原生 iOS 版本交付至 Google Play 和 App Store；Play 构建不再请求仅供侧载更新使用的安装应用权限。"
+      "在编辑器光标处通过斜杠菜单或空白块 Space 唤起 AI 助手，支持附件、自定义指令、Enter 生成、稳定可见的操作区，并将结果插入原光标位置。",
+      "在系统信息中显示当前部署平台。",
+      "优化 Mermaid 预览的宽度与呈现效果。",
+      "将退出登录操作明确限定为当前设备。",
+      "改进 Cloudflare 更新摘要并保留部署失败诊断，便于排查问题。"
     ]
   }
 }
