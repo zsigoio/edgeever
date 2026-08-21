@@ -559,12 +559,6 @@ export const enUS = {
       pwa: "PWA",
       web: "Web",
     },
-    deploymentPlatform: "Deployment platform",
-    deploymentPlatforms: {
-      cloudflare: "Cloudflare",
-      docker: "Docker",
-      unknown: "Unknown",
-    },
     deployment: "Deployment",
     deploymentTriggers: {
       github_release: "GitHub Release trigger",

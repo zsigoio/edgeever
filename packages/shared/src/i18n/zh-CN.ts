@@ -559,12 +559,6 @@ export const zhCN = {
       pwa: "PWA",
       web: "网页",
     },
-    deploymentPlatform: "部署平台",
-    deploymentPlatforms: {
-      cloudflare: "Cloudflare",
-      docker: "Docker",
-      unknown: "未知",
-    },
     deployment: "自动部署方式",
     deploymentTriggers: {
       github_release: "正式 Release 触发",

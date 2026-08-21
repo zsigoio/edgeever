@@ -51,13 +51,6 @@ export type InstanceRelease = {
   changes: Record<string, string[]>;
 };
 
-export type InstanceHealth = {
-  ok: true;
-  name: string;
-  runtime: string;
-  authMode: string;
-};
-
 type ListMemosResponse = {
   memos: MemoSummary[];
   totalCount: number;
@@ -464,8 +457,6 @@ const requestArrayBuffer = async (path: string) => {
 };
 
 export const api = {
-  getInstanceHealth: () => request<InstanceHealth>("/api/health"),
-
   getInstanceRelease: () => request<InstanceRelease>("/api/release"),
 
   getSession: () => request<AuthSession>("/api/v1/auth/session"),
