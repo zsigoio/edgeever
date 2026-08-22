@@ -565,6 +565,7 @@ export const enUS = {
     title: "System info",
     description: "View the current app version, build identifier, and runtime environment.",
     version: "Version",
+    clientVersion: "Client version",
     releaseTime: "Release time",
     build: "Build",
     client: "Client",

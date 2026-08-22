@@ -565,6 +565,7 @@ export const zhCN = {
     title: "系统信息",
     description: "查看当前应用版本、构建标识和运行环境。",
     version: "版本号",
+    clientVersion: "客户端版本",
     releaseTime: "发版时间",
     build: "构建",
     client: "客户端",

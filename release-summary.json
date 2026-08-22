@@ -1,19 +1,11 @@
 {
-  "version": "1.36.0",
+  "version": "1.37.0",
   "changes": {
     "en-US": [
-      "Use the AI assistant at the editor cursor through the slash menu or Space on an empty block, with attachments, custom instructions, Enter-to-generate, stable controls, and insertion at the original position.",
-      "Show the active deployment platform in system information.",
-      "Improve Mermaid preview sizing and presentation.",
-      "Keep sign-out scoped clearly to the current device.",
-      "Improve Cloudflare update summaries and preserve deployment failure diagnostics for easier troubleshooting."
+      "Clearly distinguish the client version from the connected cloud instance version, and automatically prepare verified desktop updates in the background with a one-click restart-and-update action when ready."
     ],
     "zh-CN": [
-      "在编辑器光标处通过斜杠菜单或空白块 Space 唤起 AI 助手，支持附件、自定义指令、Enter 生成、稳定可见的操作区，并将结果插入原光标位置。",
-      "在系统信息中显示当前部署平台。",
-      "优化 Mermaid 预览的宽度与呈现效果。",
-      "将退出登录操作明确限定为当前设备。",
-      "改进 Cloudflare 更新摘要并保留部署失败诊断，便于排查问题。"
+      "明确区分客户端版本与所连接的云端实例版本，并在后台自动准备已校验的桌面端更新；准备完成后可一键重启并更新。"
     ]
   }
 }

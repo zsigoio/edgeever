@@ -55,7 +55,10 @@ export const getWebSystemInfoItems = (
   });
 
   return [
-    { label: t("systemInfo.version"), value: `v${__EDGEEVER_APP_VERSION__}` },
+    {
+      label: t("systemInfo.clientVersion"),
+      value: `v${__EDGEEVER_APP_VERSION__}`,
+    },
     {
       label: t("systemInfo.releaseTime"),
       value: __EDGEEVER_RELEASED_AT__
