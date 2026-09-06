@@ -1,17 +1,13 @@
 import {
   AiPromptTemplateCreateSchema,
   AiPromptTemplateUpdateSchema,
-  ARCHITECTURE_RESOURCE_ICONS,
   TemplateCreateSchema,
   TemplateUpdateSchema,
   markdownToDoc,
-  parseDiagramDocument,
-  serializeDiagramDocument,
   type MemoDetail,
   type MemoSummary,
   type MemoUpdateInput,
 } from "@edgeever/shared";
-import type { DiagramIr, DiagramIrNodeType } from "@edgeever/shared/diagram-layout";
 import { audit, auditStatement } from "./audit";
 import type { AppContext, AuditActor, AuthContext, Bindings } from "./api-context";
 import { AppError } from "./app-error";
@@ -196,155 +192,6 @@ const assertMcpMutationAllowed = (environment: Bindings) => {
   }
 };
 
-const DIAGRAM_IR_NODE_TYPES = new Set<DiagramIrNodeType>([
-  "topic", "process", "decision", "start", "end", "client", "frontend", "service", "database", "storage",
-  "queue", "security", "external", "boundary",
-]);
-const DIAGRAM_EDGE_KINDS = new Set(["dependency", "request", "async", "data"]);
-const DIAGRAM_MEMO_KEYS = new Set(["notebookId", "title", "kind", "theme", "layout", "tags", "nodes", "edges"]);
-const DIAGRAM_NODE_KEYS = new Set(["id", "label", "type", "parentId", "resourceIcon"]);
-const DIAGRAM_EDGE_KEYS = new Set(["source", "target", "label", "type", "bidirectional"]);
-
-const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === "object" && !Array.isArray(value);
-
-const assertAllowedKeys = (value: Record<string, unknown>, allowed: Set<string>, path: string) => {
-  const unexpected = Object.keys(value).find((key) => !allowed.has(key));
-  if (unexpected) throw new AppError("invalid_params", `${path}.${unexpected} is not supported`, 400);
-};
-
-const parseDiagramNode = (value: unknown, index: number) => {
-  const path = `nodes.${index}`;
-  if (!isPlainRecord(value)) throw new AppError("invalid_params", `${path} must be an object`, 400);
-  assertAllowedKeys(value, DIAGRAM_NODE_KEYS, path);
-  const id = getRequiredString(value.id, `${path}.id`);
-  if (id.length > 100) throw new AppError("invalid_params", `${path}.id must be at most 100 characters`, 400);
-  if (typeof value.label !== "string" || value.label.length > 500) {
-    throw new AppError("invalid_params", `${path}.label must be a string with at most 500 characters`, 400);
-  }
-  if (value.type !== undefined && (
-    typeof value.type !== "string" || !DIAGRAM_IR_NODE_TYPES.has(value.type as DiagramIrNodeType)
-  )) {
-    throw new AppError("invalid_params", `${path}.type is not supported`, 400);
-  }
-  if (value.parentId !== undefined && (typeof value.parentId !== "string" || !value.parentId.trim() || value.parentId.length > 100)) {
-    throw new AppError("invalid_params", `${path}.parentId must be a non-empty string with at most 100 characters`, 400);
-  }
-  if (value.resourceIcon !== undefined && (
-    typeof value.resourceIcon !== "string"
-    || !ARCHITECTURE_RESOURCE_ICONS.includes(value.resourceIcon as typeof ARCHITECTURE_RESOURCE_ICONS[number])
-  )) {
-    throw new AppError("invalid_params", `${path}.resourceIcon is not supported`, 400);
-  }
-  return { ...value, id } as DiagramIr["nodes"][number];
-};
-
-const parseDiagramEdge = (value: unknown, index: number) => {
-  const path = `edges.${index}`;
-  if (!isPlainRecord(value)) throw new AppError("invalid_params", `${path} must be an object`, 400);
-  assertAllowedKeys(value, DIAGRAM_EDGE_KEYS, path);
-  const source = getRequiredString(value.source, `${path}.source`);
-  const target = getRequiredString(value.target, `${path}.target`);
-  if ([source, target].some((item) => item.length > 100)) {
-    throw new AppError("invalid_params", `${path} node IDs must be at most 100 characters`, 400);
-  }
-  if (value.label !== undefined && (typeof value.label !== "string" || value.label.length > 500)) {
-    throw new AppError("invalid_params", `${path}.label must be a string with at most 500 characters`, 400);
-  }
-  if (value.type !== undefined && (typeof value.type !== "string" || !DIAGRAM_EDGE_KINDS.has(value.type))) {
-    throw new AppError("invalid_params", `${path}.type is not supported`, 400);
-  }
-  if (value.bidirectional !== undefined && typeof value.bidirectional !== "boolean") {
-    throw new AppError("invalid_params", `${path}.bidirectional must be a boolean`, 400);
-  }
-  return { ...value, source, target } as NonNullable<DiagramIr["edges"]>[number];
-};
-
-const parseDiagramMemoIr = (args: Record<string, unknown>): DiagramIr => {
-  assertAllowedKeys(args, DIAGRAM_MEMO_KEYS, "arguments");
-  const kind = getRequiredString(args.kind, "kind");
-  if (!(["mind-map", "flowchart", "architecture"] as const).includes(kind as DiagramIr["kind"])) {
-    throw new AppError("invalid_params", "kind must be mind-map, flowchart, or architecture", 400);
-  }
-  if (!Array.isArray(args.nodes) || args.nodes.length < 1 || args.nodes.length > 200) {
-    throw new AppError("invalid_params", "nodes must include between 1 and 200 items", 400);
-  }
-  if (args.edges !== undefined && (!Array.isArray(args.edges) || args.edges.length > 400)) {
-    throw new AppError("invalid_params", "edges must be an array with at most 400 items", 400);
-  }
-  if (args.theme !== undefined && !["brand", "ocean", "ink"].includes(String(args.theme))) {
-    throw new AppError("invalid_params", "theme must be brand, ocean, or ink", 400);
-  }
-  if (args.title !== undefined && (typeof args.title !== "string" || args.title.length > 160)) {
-    throw new AppError("invalid_params", "title must be a string with at most 160 characters", 400);
-  }
-  if (args.tags !== undefined && (
-    !Array.isArray(args.tags) || args.tags.length > 100 || args.tags.some((tag) => typeof tag !== "string")
-  )) {
-    throw new AppError("invalid_params", "tags must be an array of at most 100 strings", 400);
-  }
-  if (args.layout !== undefined && (
-    !isPlainRecord(args.layout)
-    || Object.keys(args.layout).some((key) => key !== "direction")
-    || (args.layout.direction !== undefined && !["left-to-right", "top-to-bottom"].includes(String(args.layout.direction)))
-  )) {
-    throw new AppError("invalid_params", "layout may only specify direction as left-to-right or top-to-bottom", 400);
-  }
-
-  const ir: DiagramIr = {
-    kind: kind as DiagramIr["kind"],
-    ...(args.theme === undefined ? {} : { theme: args.theme as DiagramIr["theme"] }),
-    ...(args.layout === undefined ? {} : { layout: args.layout as DiagramIr["layout"] }),
-    nodes: args.nodes.map(parseDiagramNode),
-    edges: (args.edges as unknown[] | undefined)?.map(parseDiagramEdge),
-  };
-  const nodeIds = new Set(ir.nodes.map((node) => node.id));
-  if (nodeIds.size !== ir.nodes.length) throw new AppError("invalid_params", "node IDs must be unique", 400);
-  for (const node of ir.nodes) {
-    const allowedTypes = ir.kind === "mind-map"
-      ? new Set([undefined, "topic"])
-      : ir.kind === "flowchart"
-        ? new Set([undefined, "process", "decision", "start", "end"])
-        : new Set([undefined, "client", "frontend", "service", "database", "storage", "queue", "security", "external", "boundary"]);
-    if (!allowedTypes.has(node.type)) {
-      throw new AppError("invalid_params", `${node.type} is not a valid node type for ${ir.kind}`, 400);
-    }
-    if (ir.kind === "flowchart" && node.parentId) {
-      throw new AppError("invalid_params", "flowchart nodes cannot use parentId", 400);
-    }
-    if (ir.kind !== "architecture" && node.resourceIcon) {
-      throw new AppError("invalid_params", "resourceIcon is only available for architecture nodes", 400);
-    }
-    if (node.parentId && !nodeIds.has(node.parentId)) {
-      throw new AppError("invalid_params", `${node.id}.parentId must reference an existing node`, 400);
-    }
-    if (ir.kind === "architecture" && node.parentId && ir.nodes.find((candidate) => candidate.id === node.parentId)?.type !== "boundary") {
-      throw new AppError("invalid_params", `${node.id}.parentId must reference an architecture boundary`, 400);
-    }
-  }
-  for (const edge of ir.edges ?? []) {
-    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
-      throw new AppError("invalid_params", "every edge endpoint must reference an existing node", 400);
-    }
-    if (ir.kind === "architecture" && ir.nodes.some((node) => (node.id === edge.source || node.id === edge.target) && node.type === "boundary")) {
-      throw new AppError("invalid_params", "architecture boundaries cannot be edge endpoints", 400);
-    }
-  }
-  const parentByNodeId = new Map(ir.nodes.flatMap((node) => node.parentId ? [[node.id, node.parentId]] : []));
-  for (const node of ir.nodes) {
-    const ancestors = new Set<string>();
-    let currentId: string | undefined = node.id;
-    while (currentId) {
-      if (ancestors.has(currentId)) {
-        throw new AppError("invalid_params", "diagram parent relationships must not contain cycles", 400);
-      }
-      ancestors.add(currentId);
-      currentId = parentByNodeId.get(currentId);
-    }
-  }
-  return ir;
-};
-
 export const callMcpTool = async (
   c: AppContext,
   auth: AuthContext,
@@ -428,25 +275,6 @@ export const callMcpTool = async (
       }, actor, actorLabel);
 
       return { memo };
-    }
-    case "create_diagram_memo": {
-      assertScope(auth, "write:memos");
-      const notebookId = getRequiredString(args.notebookId, "notebookId");
-      const ir = parseDiagramMemoIr(args);
-      const { compileDiagramIr } = await import("@edgeever/shared/diagram-layout");
-      const document = compileDiagramIr(ir);
-      const contentMarkdown = serializeDiagramDocument(document);
-      if (!parseDiagramDocument(contentMarkdown)) {
-        throw new AppError("invalid_params", "The diagram graph could not be compiled", 400);
-      }
-      const memo = await createMemoRecord(c.env.storage.db, auth.workspaceId, {
-        notebookId,
-        title: getOptionalString(args.title) ?? undefined,
-        contentMarkdown,
-        tags: getOptionalStringArray(args.tags),
-      }, getAuditActor(c), getActorLabel(c));
-
-      return { memo, diagramKind: document.kind };
     }
     case "import_memos": {
       assertScope(auth, "write:memos");

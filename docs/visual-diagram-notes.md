@@ -78,8 +78,6 @@ The native apps currently hide regular rich-text editing, double-tap editing, an
 
 For MCP and AI, the IR is a positive capability and the foundation of a stable tool protocol. An AI can work with semantic IR instead of producing X6 internals, SVG, or an entire Mermaid document. It can therefore perform a local request such as “add a Redis cache between the API and database” while preserving the user's other nodes and layout decisions.
 
-The `create_diagram_memo` MCP tool accepts this semantic creation IR: node identities, labels, semantic types, containment, and connections. EdgeEver generates edge identities, node dimensions, coordinates, deterministic layout, and architecture boundary geometry before compiling the result into the persisted `DiagramDocument`. An optional layout direction is a hint rather than authored geometry.
-
 MCP should expose small, explicit operations such as reading a diagram, adding or updating a node, connecting components, moving a node into a boundary, validating changes, and applying layout. It should not rely solely on a high-risk `replace_diagram_ir` operation. The recommended flow is:
 
 ```text

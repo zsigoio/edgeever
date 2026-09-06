@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createDefaultDiagramDocument } from "@edgeever/shared";
-import { compileDiagramIr, compactArchitectureNodeSize, compactFlowchartNodeSize, compactMindMapNodeSize, computeDiagramLayout } from "./diagram-layout.ts";
+import { compactArchitectureNodeSize, compactFlowchartNodeSize, compactMindMapNodeSize, computeDiagramLayout } from "./diagram-layout.ts";
 
 describe("diagram auto layout", () => {
   test("places mind-map children to the right of their root", () => {
@@ -73,50 +73,5 @@ describe("diagram auto layout", () => {
     expect(positions.system).toEqual({ x: 220, y: 64 });
     expect(compactArchitectureNodeSize("database")).toEqual({ width: 150, height: 72 });
     expect(compactArchitectureNodeSize("boundary", { width: 640, height: 360 })).toEqual({ width: 640, height: 360 });
-  });
-
-  test("separates generated architecture boundaries and keeps their children inside", () => {
-    const document = compileDiagramIr({
-      kind: "architecture",
-      nodes: [
-        { id: "one", label: "One", type: "boundary" },
-        { id: "one-api", label: "API one", type: "service", parentId: "one" },
-        { id: "two", label: "Two", type: "boundary" },
-        { id: "two-api", label: "API two", type: "service", parentId: "two" },
-      ],
-    });
-    const one = document.nodes.find((node) => node.id === "one");
-    const oneApi = document.nodes.find((node) => node.id === "one-api");
-    const two = document.nodes.find((node) => node.id === "two");
-    const twoApi = document.nodes.find((node) => node.id === "two-api");
-    expect(one.y + one.height + 40).toBeLessThanOrEqual(two.y);
-    for (const [boundary, child] of [[one, oneApi], [two, twoApi]]) {
-      expect(child.x).toBeGreaterThan(boundary.x);
-      expect(child.y).toBeGreaterThan(boundary.y);
-      expect(child.x + child.width).toBeLessThan(boundary.x + boundary.width);
-      expect(child.y + child.height).toBeLessThan(boundary.y + boundary.height);
-    }
-  });
-
-  test("wraps a long architecture pipeline by boundary instead of shrinking it into one row", () => {
-    const nodes = [];
-    const edges = [];
-    let previousId;
-    for (let groupIndex = 0; groupIndex < 4; groupIndex += 1) {
-      const boundaryId = `stage-${groupIndex}`;
-      nodes.push({ id: boundaryId, label: `Stage ${groupIndex}`, type: "boundary" });
-      for (let nodeIndex = 0; nodeIndex < 3; nodeIndex += 1) {
-        const id = `${boundaryId}-node-${nodeIndex}`;
-        nodes.push({ id, label: id, type: "service", parentId: boundaryId });
-        if (previousId) edges.push({ source: previousId, target: id });
-        previousId = id;
-      }
-    }
-    const document = compileDiagramIr({ kind: "architecture", nodes, edges });
-    const boundaries = document.nodes.filter((node) => node.shape === "boundary");
-    const contentWidth = Math.max(...boundaries.map((node) => node.x + node.width))
-      - Math.min(...boundaries.map((node) => node.x));
-    expect(contentWidth).toBeLessThanOrEqual(1480);
-    expect(new Set(boundaries.map((node) => node.y)).size).toBeGreaterThan(1);
   });
 });
