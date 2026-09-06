@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { globSync, readFileSync } from "node:fs";
 import { Database } from "bun:sqlite";
 import { callMcpTool } from "./index.ts";
+import { parseDiagramDocument } from "@edgeever/shared";
 
 class SqliteD1PreparedStatement {
   constructor(db, sql, bindings = []) {
@@ -71,6 +72,65 @@ const createFixture = (scopes = ["read:memos", "write:memos"]) => {
 };
 
 describe("MCP template and AI instruction management", () => {
+  test.each([
+    ["mind-map", [
+      { id: "root", label: "Root" },
+      { id: "branch", label: "Branch", parentId: "root" },
+    ], []],
+    ["flowchart", [
+      { id: "start", label: "Start", type: "start" },
+      { id: "pay", label: "Pay", type: "process" },
+    ], [{ source: "start", target: "pay", label: "Continue" }]],
+    ["architecture", [
+      { id: "system", label: "System", type: "boundary" },
+      { id: "api", label: "API", type: "service", parentId: "system" },
+    ], []],
+  ])("creates editable %s diagram memos from structured graphs", async (kind, nodes, edges) => {
+    const { sqlite, auth, context } = createFixture();
+    sqlite.query("INSERT INTO notebooks (id, workspace_id, name) VALUES (?, ?, ?)")
+      .run("nb_diagrams", "ws_mcp", "Diagrams");
+
+    const created = await callMcpTool(context, auth, "create_diagram_memo", {
+      notebookId: "nb_diagrams",
+      title: "Generated diagram",
+      kind,
+      theme: "brand",
+      tags: ["design"],
+      nodes,
+      edges,
+    });
+
+    expect(created).toMatchObject({ diagramKind: kind, memo: { title: "Generated diagram", tags: ["design"] } });
+    const diagram = parseDiagramDocument(created.memo.contentMarkdown);
+    expect(diagram).toMatchObject({ kind, theme: "brand" });
+    expect(diagram.nodes.map((node) => node.id)).toEqual(nodes.map((node) => node.id));
+    expect(diagram.nodes.every((node) => Number.isFinite(node.x) && Number.isFinite(node.y))).toBeTrue();
+    expect(diagram.nodes.every((node) => node.width > 0 && node.height > 0)).toBeTrue();
+    if (kind === "mind-map") expect(diagram.edges).toHaveLength(1);
+    if (kind === "flowchart") {
+      expect(diagram.edges).toMatchObject([{ id: "edge-1", source: "start", target: "pay" }]);
+      expect(diagram.nodes.find((node) => node.id === "start").y)
+        .toBeLessThan(diagram.nodes.find((node) => node.id === "pay").y);
+    }
+    if (kind === "architecture") {
+      const boundary = diagram.nodes.find((node) => node.id === "system");
+      const api = diagram.nodes.find((node) => node.id === "api");
+      expect(boundary.x).toBeLessThan(api.x);
+      expect(boundary.y).toBeLessThan(api.y);
+      expect(boundary.x + boundary.width).toBeGreaterThan(api.x + api.width);
+    }
+  });
+
+  test("rejects invalid diagram graphs before creating a memo", async () => {
+    const { auth, context } = createFixture();
+    await expect(callMcpTool(context, auth, "create_diagram_memo", {
+      notebookId: "nb_diagrams",
+      kind: "mind-map",
+      nodes: [{ id: "root", label: "Root", type: "database" }],
+      edges: [],
+    })).rejects.toMatchObject({ code: "invalid_params" });
+  });
+
   test("manages note templates within the authenticated workspace", async () => {
     const { sqlite, auth, context } = createFixture();
 

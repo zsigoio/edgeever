@@ -1,3 +1,22 @@
+import { ARCHITECTURE_RESOURCE_ICONS } from "@edgeever/shared";
+
+const DIAGRAM_IR_NODE_TYPES = [
+  "topic",
+  "process",
+  "decision",
+  "start",
+  "end",
+  "client",
+  "frontend",
+  "service",
+  "database",
+  "storage",
+  "queue",
+  "security",
+  "external",
+  "boundary",
+] as const;
+
 const MCP_TOOL_DEFINITIONS = [
   {
     name: "get_current_user",
@@ -71,6 +90,63 @@ const MCP_TOOL_DEFINITIONS = [
         tags: { type: "array", items: { type: "string" } },
         createdAt: { type: "string", format: "date-time" },
         updatedAt: { type: "string", format: "date-time" },
+      },
+    },
+  },
+  {
+    name: "create_diagram_memo",
+    description:
+      "Create an editable visual diagram memo from a semantic graph; EdgeEver generates node sizes, coordinates, edge IDs, and a deterministic layout. For mind maps, omit node type and use parentId for hierarchy. Flowchart node types are process, decision, start, or end. Architecture node types are client, frontend, service, database, storage, queue, security, external, or boundary; boundary nodes may contain nodes through parentId but cannot be edge endpoints.",
+    inputSchema: {
+      type: "object",
+      required: ["notebookId", "kind", "nodes"],
+      additionalProperties: false,
+      properties: {
+        notebookId: { type: "string", minLength: 1 },
+        title: { type: "string", maxLength: 160 },
+        kind: { type: "string", enum: ["mind-map", "flowchart", "architecture"] },
+        theme: { type: "string", enum: ["brand", "ocean", "ink"] },
+        layout: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            direction: { type: "string", enum: ["left-to-right", "top-to-bottom"] },
+          },
+        },
+        tags: { type: "array", maxItems: 100, items: { type: "string" } },
+        nodes: {
+          type: "array",
+          minItems: 1,
+          maxItems: 200,
+          items: {
+            type: "object",
+            required: ["id", "label"],
+            additionalProperties: false,
+            properties: {
+              id: { type: "string", minLength: 1, maxLength: 100 },
+              label: { type: "string", maxLength: 500 },
+              type: { type: "string", enum: [...DIAGRAM_IR_NODE_TYPES] },
+              parentId: { type: "string", minLength: 1, maxLength: 100 },
+              resourceIcon: { type: "string", enum: [...ARCHITECTURE_RESOURCE_ICONS] },
+            },
+          },
+        },
+        edges: {
+          type: "array",
+          maxItems: 400,
+          items: {
+            type: "object",
+            required: ["source", "target"],
+            additionalProperties: false,
+            properties: {
+              source: { type: "string", minLength: 1, maxLength: 100 },
+              target: { type: "string", minLength: 1, maxLength: 100 },
+              label: { type: "string", maxLength: 500 },
+              type: { type: "string", enum: ["dependency", "request", "async", "data"] },
+              bidirectional: { type: "boolean" },
+            },
+          },
+        },
       },
     },
   },
@@ -642,6 +718,7 @@ const READ_ONLY_MCP_TOOLS = new Set([
 ]);
 const NON_DESTRUCTIVE_MCP_TOOLS = new Set([
   "create_memo",
+  "create_diagram_memo",
   "import_memos",
   "restore_memos",
   "move_memos",
