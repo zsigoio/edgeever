@@ -387,6 +387,7 @@ html[data-edgeever-extension-theme] .divide-slate-200 > :not([hidden]) ~ :not([h
   border-color: var(--edgeever-theme-border, #e2e8f0);
 }
 
+html[data-edgeever-extension-theme] .bg-emerald-500,
 html[data-edgeever-extension-theme] .bg-emerald-600,
 html[data-edgeever-extension-theme] .bg-emerald-700 {
   background-color: var(--edgeever-theme-accent, #16a06e);

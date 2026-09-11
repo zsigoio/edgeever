@@ -47,9 +47,12 @@ describe("native mobile AI note assistant", () => {
     expect(androidWorkspaceSource).toContain("aiPromptsJson={aiPromptsJson}");
     expect(androidEditorSource).toContain("...(promptId ? { promptId } : {})");
     expect(androidSessionSource).toContain("fetch: expoFetch as typeof fetch");
+    expect(androidSessionSource).toContain("directAiGeneration: true");
     expect(iosAssistantSource).toContain("env.session.client.listAiPrompts(locale: locale)");
     expect(iosAssistantSource).toContain("client.streamAiGeneration(input)");
     expect(iosAssistantSource).toContain("promptId: selectedPrompt?.id");
+    expect(iosApiSource).toContain('path: "/api/v1/ai/generate/prepare"');
+    expect(iosApiSource).toContain("streamDirectProvider");
     expect(iosApiSource).toContain('makeURL(path: "/api/v1/ai/generate")');
     expect(iosApiSource).toContain("for try await line in bytes.lines");
   });

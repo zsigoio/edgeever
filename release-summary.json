@@ -1,19 +1,15 @@
 {
-  "version": "1.65.1",
+  "version": "1.66.0",
   "changes": {
     "en-US": [
-      "Keep plugin panel close buttons in the header action row so they no longer overlap Refresh, Cancel, or Save.",
-      "Install and update GitHub plugins from public Release assets when api.github.com returns 401, 403, or 429.",
-      "Show only launcher commands on plugin marketplace cards, and keep the plugin toolbar menu to unique editor commands and dashboard panels.",
-      "Stop the memo-card hover tip from covering the New Note button.",
-      "Make diagram zoom percent editable, drop the Fit button, and keep large notes readable."
+      "Redesign mind map color palettes with adaptive contrast, and flatten the theme picker into a clean list.",
+      "Keep flowchart palettes from reverting to forest green after save or reopen.",
+      "Let desktop auto-restart even when the connected instance is behind, and show a quiet, platform-specific hint instead of holding the update."
     ],
     "zh-CN": [
-      "把插件面板关闭按钮放进标题操作行，避免压住刷新、取消或保存。",
-      "当 GitHub REST API 返回 401、403 或 429 时，改为下载公开 Release 资源来安装和更新插件。",
-      "插件市场卡片只保留启动命令，工具栏菜单只保留不重复的编辑器命令和仪表盘面板。",
-      "避免笔记卡片悬停提示挡住「新建笔记」按钮。",
-      "图文档缩放改为可输入百分比，去掉适应画布按钮，并让大笔记保持可读。"
+      "重做思维导图配色并按对比度自适应文字，主题选择改为干净的扁平列表。",
+      "避免流程图配色在保存或重新打开后变回森绿。",
+      "即使云端实例落后，桌面端也会自动重启更新；系统信息改为安静提示，并按 Cloudflare 或 Docker 给出对应更新方式。"
     ]
   }
 }
