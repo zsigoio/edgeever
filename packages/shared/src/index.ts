@@ -2,7 +2,6 @@ export * from "./content";
 export * from "./companion";
 export * from "./public-demo";
 export * from "./ai-assistant";
-export * from "./ai-generation";
 export * from "./ai-prompt-seeds";
 export * from "./ai-tag-suggestions";
 export * from "./ai-selection";

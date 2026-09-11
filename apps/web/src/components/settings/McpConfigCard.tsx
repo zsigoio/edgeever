@@ -76,6 +76,7 @@ const McpExampleDialog = () => {
           <Button
             size="md"
             variant="solid"
+            className="bg-emerald-600 text-white hover:bg-emerald-700"
             type="button"
             onClick={() => void handleCopy()}
           >
@@ -131,7 +132,7 @@ const AccessLevelPicker = ({ value, onChange }: AccessLevelPickerProps) => {
                   />
                   <span
                     aria-hidden="true"
-                    className={cn("h-1.5 w-1.5 rounded-full", checked ? "bg-emerald-500" : "bg-slate-400")}
+                    className={cn("h-1.5 w-1.5 rounded-full", checked ? "bg-emerald-600" : "bg-slate-400")}
                   />
                   {t(`mcp.accessLevels.${option}.label`)}
                 </label>
@@ -403,7 +404,7 @@ export const McpConfigCard = () => {
                 <Button
                   size="sm"
                   variant="solid"
-                  className="h-9 shrink-0 gap-1 px-3.5 text-xs"
+                  className="h-9 shrink-0 gap-1 bg-emerald-600 px-3.5 text-xs text-white hover:bg-emerald-700"
                   type="submit"
                   disabled={createMutation.isPending || !name.trim()}
                 >

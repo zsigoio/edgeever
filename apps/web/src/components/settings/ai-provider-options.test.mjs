@@ -42,7 +42,5 @@ describe("AI settings cards tolerate missing text fields", () => {
     expect(modelCard).toContain("canAddProvider");
     expect(modelCard).toContain("addDisabledReason");
     expect(modelCard).toContain("savedCredentialsUnavailable");
-    expect(modelCard).not.toContain("aiStreamingTitle");
-    expect(modelCard).not.toContain("readAiStreamingPreference");
   });
 });

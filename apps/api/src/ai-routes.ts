@@ -11,10 +11,6 @@ import {
   normalizeTags,
   promptNeedsTargetLanguage,
   promptNeedsTone,
-  type AiAction,
-  type AiAttachmentInput,
-  type AiTargetLanguage,
-  type AiTone,
 } from "@edgeever/shared";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
@@ -34,12 +30,9 @@ import {
   getDefaultAiModelId,
   generateAiGeneration,
   generateAiTagSuggestions,
-  getDefaultAiDirectTarget,
   loadDefaultAiModel,
-  loadDefaultAiModelCredentials,
   normalizeAiGenerationText,
   normalizeAiBaseUrl,
-  prepareAiGeneration,
   resolvePrimaryAiCredentialEncryptionKey,
   streamAiGeneration,
   testAiModel,
@@ -134,63 +127,6 @@ const withAiError = (context: AppContext, error: unknown, fallbackCode: string) 
     return apiError(context, error.code, error.message, error.status);
   }
   return apiError(context, fallbackCode, providerErrorMessage(error), 400);
-};
-
-const resolveAiGenerateFields = async (context: AppContext, input: {
-  action: AiAction;
-  promptId?: string;
-  locale?: string;
-  instruction?: string;
-  targetLanguage?: AiTargetLanguage;
-  tone?: AiTone;
-  contentMarkdown: string;
-  attachments?: AiAttachmentInput[];
-}) => {
-  const workspaceId = getWorkspaceId(context);
-  const selectedPrompt = input.promptId
-    ? await getAiPromptTemplate(
-      context.env.storage.db,
-      workspaceId,
-      input.promptId,
-      input.locale,
-    )
-    : null;
-  if (input.promptId && !selectedPrompt) {
-    throw new AppError("ai_prompt_not_found", "The selected prompt no longer exists.", 404);
-  }
-
-  const action = selectedPrompt?.action ?? input.action;
-  const needsTargetLanguage = selectedPrompt
-    ? promptNeedsTargetLanguage(selectedPrompt.parameterKind)
-    : action === "translate";
-  const needsTone = selectedPrompt
-    ? promptNeedsTone(selectedPrompt.parameterKind)
-    : action === "change-tone";
-  if (needsTargetLanguage && !input.targetLanguage) {
-    throw new AppError("ai_target_language_required", "Choose a target language for this prompt.", 400);
-  }
-  if (needsTone && !input.tone) {
-    throw new AppError("ai_tone_required", "Choose a tone for this prompt.", 400);
-  }
-
-  const instruction = selectedPrompt?.instruction
-    || input.instruction?.trim()
-    || await resolveWorkspaceActionInstruction(
-      context.env.storage.db,
-      workspaceId,
-      action,
-      input.locale,
-    )
-    || undefined;
-
-  return {
-    action,
-    instruction,
-    targetLanguage: needsTargetLanguage ? input.targetLanguage : undefined,
-    tone: needsTone ? input.tone : undefined,
-    contentMarkdown: input.contentMarkdown,
-    attachments: input.attachments,
-  };
 };
 
 export const registerAiRoutes = (app: Hono<AppEnv>, dependencies: AiRouteDependencies) => {
@@ -618,44 +554,6 @@ export const registerAiRoutes = (app: Hono<AppEnv>, dependencies: AiRouteDepende
     },
   );
 
-  app.get(
-    "/api/v1/ai/direct-target",
-    async (context) => {
-      const denied = requireUser(context);
-      if (denied) return denied;
-      try {
-        return context.json(await getDefaultAiDirectTarget(
-          context.env.storage.db,
-          getWorkspaceId(context),
-          context.env,
-        ));
-      } catch (error) {
-        return withAiError(context, error, "ai_generation_failed");
-      }
-    },
-  );
-
-  app.post(
-    "/api/v1/ai/generate/prepare",
-    validateAiGeneration,
-    async (context) => {
-      const denied = requireUser(context);
-      if (denied) return denied;
-      try {
-        const input = context.req.valid("json");
-        const fields = await resolveAiGenerateFields(context, input);
-        const credentials = await loadDefaultAiModelCredentials(
-          context.env.storage.db,
-          getWorkspaceId(context),
-          context.env,
-        );
-        return context.json(prepareAiGeneration({ ...fields, credentials }));
-      } catch (error) {
-        return withAiError(context, error, "ai_generation_failed");
-      }
-    },
-  );
-
   app.post(
     "/api/v1/ai/generate",
     validateAiGeneration,
@@ -664,16 +562,54 @@ export const registerAiRoutes = (app: Hono<AppEnv>, dependencies: AiRouteDepende
       if (denied) return denied;
       try {
         const input = context.req.valid("json");
-        const fields = await resolveAiGenerateFields(context, input);
+        const workspaceId = getWorkspaceId(context);
+        const selectedPrompt = input.promptId
+          ? await getAiPromptTemplate(
+            context.env.storage.db,
+            workspaceId,
+            input.promptId,
+            input.locale,
+          )
+          : null;
+        if (input.promptId && !selectedPrompt) {
+          throw new AppError("ai_prompt_not_found", "The selected prompt no longer exists.", 404);
+        }
+
+        const action = selectedPrompt?.action ?? input.action;
+        const needsTargetLanguage = selectedPrompt
+          ? promptNeedsTargetLanguage(selectedPrompt.parameterKind)
+          : action === "translate";
+        const needsTone = selectedPrompt
+          ? promptNeedsTone(selectedPrompt.parameterKind)
+          : action === "change-tone";
+        if (needsTargetLanguage && !input.targetLanguage) {
+          throw new AppError("ai_target_language_required", "Choose a target language for this prompt.", 400);
+        }
+        if (needsTone && !input.tone) {
+          throw new AppError("ai_tone_required", "Choose a tone for this prompt.", 400);
+        }
+
+        const resolvedInstruction = selectedPrompt?.instruction
+          || input.instruction?.trim()
+          || await resolveWorkspaceActionInstruction(
+            context.env.storage.db,
+            workspaceId,
+            action,
+            input.locale,
+          )
+          || undefined;
         const model = await loadDefaultAiModel(
           context.env.storage.db,
-          getWorkspaceId(context),
+          workspaceId,
           context.env,
         );
         const resultBoundary = createAiGenerationResultBoundary();
         const generationInput = {
           ...input,
-          ...fields,
+          action,
+          instruction: resolvedInstruction,
+          targetLanguage: needsTargetLanguage ? input.targetLanguage : undefined,
+          tone: needsTone ? input.tone : undefined,
           model,
           resultBoundary,
           abortSignal: context.req.raw.signal,

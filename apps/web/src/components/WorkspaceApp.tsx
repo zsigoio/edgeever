@@ -77,8 +77,6 @@ import {
   getExpandableNotebookIds,
   filterNotebookTree,
   getNotebookMoveOptions,
-  getMemoIdsNeedingMove,
-  resolveSelectionMoveTargetNotebookId,
 } from "@/lib/app-helpers";
 import { useBrowserBackLayer } from "@/lib/app-hooks";
 import { updateMemoSummaryInLists, type MemoListQueryData } from "@/lib/memo-list-cache";
@@ -2102,14 +2100,13 @@ export const WorkspaceApp = ({
   );
 
   useEffect(() => {
-    const nextTargetId = resolveSelectionMoveTargetNotebookId(
-      selectionMoveTargetNotebookId,
-      selectionMoveNotebookOptions.map((option) => option.id),
-      selectedNotebook?.id
-    );
+    if (selectedNotebook?.id) {
+      setSelectionMoveTargetNotebookId(selectedNotebook.id);
+      return;
+    }
 
-    if (nextTargetId !== selectionMoveTargetNotebookId) {
-      setSelectionMoveTargetNotebookId(nextTargetId);
+    if (!selectionMoveTargetNotebookId && selectionMoveNotebookOptions[0]?.id) {
+      setSelectionMoveTargetNotebookId(selectionMoveNotebookOptions[0].id);
     }
   }, [selectedNotebook?.id, selectionMoveNotebookOptions, selectionMoveTargetNotebookId]);
 
@@ -2258,12 +2255,17 @@ export const WorkspaceApp = ({
     });
   };
 
+  const getMemoIdsNeedingMove = (memoIds: string[], targetNotebookId: string) => {
+    const memoNotebookMap = new Map(memos.map((memo) => [memo.id, memo.notebookId]));
+    return Array.from(new Set(memoIds.filter(Boolean))).filter((memoId) => memoNotebookMap.get(memoId) !== targetNotebookId);
+  };
+
   const handleMoveSelectedMemos = (targetNotebookId: string) => {
     if (selectedMemoIds.size === 0 || memoView === "trash") {
       return;
     }
 
-    const memoIds = getMemoIdsNeedingMove(memos, Array.from(selectedMemoIds), targetNotebookId);
+    const memoIds = getMemoIdsNeedingMove(Array.from(selectedMemoIds), targetNotebookId);
     if (memoIds.length === 0) {
       return;
     }
@@ -2279,7 +2281,7 @@ export const WorkspaceApp = ({
       return;
     }
 
-    const movableMemoIds = getMemoIdsNeedingMove(memos, memoIds, targetNotebookId);
+    const movableMemoIds = getMemoIdsNeedingMove(memoIds, targetNotebookId);
     if (movableMemoIds.length === 0) {
       return;
     }
@@ -2295,7 +2297,7 @@ export const WorkspaceApp = ({
       return;
     }
 
-    const memoIds = getMemoIdsNeedingMove(memos, [memoId], targetNotebookId);
+    const memoIds = getMemoIdsNeedingMove([memoId], targetNotebookId);
     if (memoIds.length === 0) {
       return;
     }
@@ -2430,12 +2432,6 @@ export const WorkspaceApp = ({
         : pinMemosMutation.isPending
           ? t("workspace.selection.updatingPin")
           : selectionPinLabel;
-  const selectedMemosNeedingMove = getMemoIdsNeedingMove(
-    memos,
-    Array.from(selectedMemoIds),
-    selectionMoveTargetNotebookId
-  );
-  const canMoveSelectedMemos = selectedMemosNeedingMove.length > 0;
   const selectionMoveTitle =
     selectedMemoIds.size === 0
       ? t("workspace.selection.chooseMemo")
@@ -2445,9 +2441,7 @@ export const WorkspaceApp = ({
           ? t("workspace.selection.noMovableNotebook")
           : moveMemosMutation.isPending
             ? t("workspace.selection.moving")
-            : !canMoveSelectedMemos
-              ? t("workspace.selection.alreadyInNotebook")
-              : t("workspace.selection.move");
+            : t("workspace.selection.move");
   const selectionMergeTitle =
     selectedMemoIds.size < 2
       ? t("workspace.selection.needTwoMemos")
@@ -2477,7 +2471,6 @@ export const WorkspaceApp = ({
           : t("workspace.selection.delete");
   const memoSelectionActionBar = memoSelectionModeActive ? (
     <MemoSelectionActionBar
-      canMove={canMoveSelectedMemos}
       deleteTitle={selectionDeleteTitle}
       exportTitle={selectionExportTitle}
       isDeleting={deleteMemosMutation.isPending || deleteMemoMutation.isPending}

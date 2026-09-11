@@ -41,7 +41,6 @@ import {
 } from "./windows-update-trust.mjs";
 import electronUpdater from "electron-updater";
 import { createPluginPublicNetworkRuntime } from "./plugin-public-network.mjs";
-import { createAiDirectRuntime } from "./ai-direct.mjs";
 import { shouldQuitAfterAllWindowsClosed } from "./window-lifecycle.mjs";
 import {
   DESKTOP_APP_ENTRY_URL,
@@ -131,7 +130,6 @@ let rendererStartupFailureDialogOpen = false;
 let rendererStartupGuard = null;
 let rendererUnresponsiveTimer = null;
 const pluginPublicNetwork = createPluginPublicNetworkRuntime();
-const aiDirect = createAiDirectRuntime();
 let rendererUnresponsiveDialogOpen = false;
 let recoveredAfterAbnormalExit = false;
 let usePrivateAppProtocol = false;
@@ -1358,30 +1356,6 @@ const startApplication = async () => {
   });
   ipcMain.on("desktop:cancel-public-network-fetch", (event, requestId) => {
     if (event.sender === mainWindow?.webContents && typeof requestId === "string") pluginPublicNetwork.cancel(requestId);
-  });
-  ipcMain.handle("desktop:ai-direct-open", async (event, requestId, input) => {
-    if (event.sender !== mainWindow?.webContents) throw new Error("AI provider requests must come from the main window");
-    const sender = event.sender;
-    return aiDirect.open(requestId, input, {
-      onData: (bytes) => {
-        if (sender.isDestroyed()) return;
-        sender.send("desktop:ai-direct-chunk", requestId, { type: "data", bytes });
-      },
-      onEnd: () => {
-        if (sender.isDestroyed()) return;
-        sender.send("desktop:ai-direct-chunk", requestId, { type: "end" });
-      },
-      onError: (error) => {
-        if (sender.isDestroyed()) return;
-        sender.send("desktop:ai-direct-chunk", requestId, {
-          type: "error",
-          message: error instanceof Error ? error.message : String(error),
-        });
-      },
-    });
-  });
-  ipcMain.on("desktop:ai-direct-cancel", (event, requestId) => {
-    if (event.sender === mainWindow?.webContents && typeof requestId === "string") aiDirect.cancel(requestId);
   });
   ipcMain.handle("desktop:sync-scheduled-tasks", async (event, tasks) => {
     if (event.sender !== mainWindow?.webContents) throw new Error("Scheduled tasks must come from the main window");
