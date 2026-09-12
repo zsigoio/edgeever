@@ -1021,6 +1021,33 @@ textarea {
   padding-left: 1.5rem;
 }
 
+.ProseMirror .ee-inline-field-source {
+  font-size: 0;
+  color: transparent;
+}
+
+.ProseMirror .ee-inline-field {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.15rem;
+  padding: 0 0.45rem;
+  border: 1px solid rgb(var(--slate-200-rgb, 226 232 240));
+  border-radius: 999px;
+  background: rgb(var(--slate-100-rgb, 241 245 249));
+  color: rgb(var(--slate-500-rgb, 100 116 139));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.55;
+  vertical-align: 0.12em;
+  cursor: text;
+}
+
+:root.dark .ProseMirror .ee-inline-field {
+  border-color: rgb(51 65 85);
+  background: rgb(30 41 59);
+  color: rgb(148 163 184);
+}
+
 .ProseMirror blockquote {
   margin: 0 0 1rem;
   border-left: 3px solid var(--brand-green);

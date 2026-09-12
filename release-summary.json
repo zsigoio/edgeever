@@ -1,15 +1,15 @@
 {
-  "version": "1.66.0",
+  "version": "1.68.0",
   "changes": {
     "en-US": [
-      "Redesign mind map color palettes with adaptive contrast, and flatten the theme picker into a clean list.",
-      "Keep flowchart palettes from reverting to forest green after save or reopen.",
-      "Let desktop auto-restart even when the connected instance is behind, and show a quiet, platform-specific hint instead of holding the update."
+      "Render Dataview inline fields such as [due:: YYYY-MM-DD] as compact editor chips, and keep the raw field editable on click.",
+      "Highlight Markdown source and switch editor themes from the toolbar.",
+      "Remember the last AI assistant action and open the assistant from the current selection or the whole note."
     ],
     "zh-CN": [
-      "重做思维导图配色并按对比度自适应文字，主题选择改为干净的扁平列表。",
-      "避免流程图配色在保存或重新打开后变回森绿。",
-      "即使云端实例落后，桌面端也会自动重启更新；系统信息改为安静提示，并按 Cloudflare 或 Docker 给出对应更新方式。"
+      "把 [due:: YYYY-MM-DD] 这类 Dataview 字段在编辑器里收成安静的小标签，点击后仍可编辑原文。",
+      "Markdown 源码高亮，并支持从工具栏切换编辑器主题。",
+      "记住上次的 AI 助手操作，并支持从当前选区或整篇笔记打开助手。"
     ]
   }
 }

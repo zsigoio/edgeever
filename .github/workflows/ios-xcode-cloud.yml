@@ -26,7 +26,7 @@ on:
         description: App Store marketing version to inspect
         required: false
         type: string
-        default: "1.65.0"
+        default: "1.67.0"
       app_store_build_id:
         description: App Store Connect build resource ID to inspect
         required: false
@@ -357,18 +357,16 @@ jobs:
 
       - name: Submit App Store build for review
         env:
-          APP_STORE_BUILD_NUMBER: "46"
+          APP_STORE_BUILD_NUMBER: "47"
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.EDGEEVER_APPLE_API_ISSUER }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.EDGEEVER_APPLE_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.EDGEEVER_APPLE_API_KEY_BASE64 }}
           APP_STORE_RELEASE_NOTES_ZH: |-
-            可从可见标签筛选笔记，列表按精确标签匹配，相近名称的标签不再混入结果。
-            打开大型思维导图时不再缩成无法阅读的全图，画布铺满剩余视口，支持捏合缩放并点选主题。
-            在原生客户端中更一致地呈现可视化笔记，图表阅读与布局更清晰。
+            笔记里的 AI 生成改为从本机直连模型并实时流式输出，不再绕过云端实例。
+            客户端新于云端实例时，系统信息给出安静提示，并按 Cloudflare 或 Docker 说明如何更新。
           APP_STORE_RELEASE_NOTES_EN: |-
-            Filter notes from a visible tag. Lists match the exact tag, so similarly named tags no longer leak into the result.
-            Large mind maps open at a readable size, fill the remaining viewport, pinch-zoom, and focus a topic on tap.
-            Render visual notes more consistently in the native viewer, with clearer diagram reading and layout.
+            Stream AI note generation from the device by calling the model host directly, instead of going through the cloud instance.
+            When this client is newer than the connected instance, show a quiet system-info hint with the matching Cloudflare or Docker update path.
           APP_STORE_VERSION: ${{ inputs.app_store_version }}
         run: fastlane ios submit_review
         working-directory: apps/ios
