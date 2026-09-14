@@ -1,13 +1,20 @@
 {
-  "version": "1.70.0",
+  "version": "1.72.0",
   "changes": {
     "en-US": [
-      "Replace the Xiaohongshu and X/Twitter factory AI prompts with Extract tasks and Continue writing. Opening the assistant on a whole note now starts on a custom instruction. After upgrade, those two factory presets—including edited copies—are removed; prompts you created yourself are kept.",
-      "Keep table layout stable when switching editor themes, give themes original four-character Chinese names, and balance desktop editor gutters so the reading column fills leftover width."
+      "Keep plugin and theme membership on the workspace so other browsers and desktop apps re-download verified packages after you switch devices. Settings, secrets, and native mobile apps stay local to each device.",
+      "Add Japanese as a first-class in-app language, including factory AI prompt seeds. Browser and system languages that EdgeEver does not ship now fall back to English instead of Simplified Chinese.",
+      "Keep the English New note action from truncating in the notebook pane, and hide the secondary label when the sidebar is too narrow."
     ],
     "zh-CN": [
-      "内置 AI 提示改为笔记工作流：用「提取待办」和「继续写作」替换小红书、推特风格模板；对整篇笔记打开助手时默认进入自定义指令。升级后这两个出厂模板（含已编辑版本）会被移除，自建提示词不受影响。",
-      "切换编辑器主题时表格不再变形；主题使用独立四字中文名；桌面编辑区左右留白更均衡，阅读栏会填满中间剩余宽度。"
+      "Web 与桌面端会把插件和主题安装清单保存在工作区，换浏览器或换电脑后自动重新下载并校验，无需再手动安装。设置、密钥和原生移动端仍只保存在当前设备。",
+      "应用内新增日语作为一等语言，出厂 AI 提示词也提供日文。未覆盖的浏览器或系统语言现在回退到英语，而不再落到简体中文。",
+      "英文界面的「New note」按钮不再被截断；侧栏过窄时隐藏次要按钮文案。"
+    ],
+    "ja": [
+      "Web とデスクトップでプラグイン／テーマの導入一覧をワークスペースに保存します。別のブラウザやパソコンでは検証済みパッケージを自動で再ダウンロードし、設定・シークレット・モバイルアプリは端末内のままです。",
+      "アプリ内の第一言語として日本語を追加し、出荷時の AI プロンプトも日本語化しました。未対応のブラウザ／システム言語は簡体字中国語ではなく英語にフォールバックします。",
+      "英語 UI の New note ラベルが切れないようにし、サイドバーが狭いときは副ボタンの文言を隠します。"
     ]
   }
 }

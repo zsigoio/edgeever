@@ -11,13 +11,18 @@ test("keeps proactive AI out of primary navigation", () => {
 });
 
 test("keeps the desktop create-note control compact with one neutral outline", () => {
+  const css = readFileSync(new URL("../styles/globals.css", import.meta.url), "utf8");
+
   expect(source).toContain('rounded-2xl border border-slate-200/90');
-  expect(source).toContain('className="group flex h-12');
-  expect(source).toContain('className="group relative flex h-12 w-[6.25rem]');
+  expect(source).toContain('className="group flex h-12 max-w-[calc(100%-2.25rem)]');
+  expect(source).toContain('className="group relative flex h-12 min-w-9 flex-1');
   expect(source).toContain('before:inset-y-2.5');
   expect(source).toContain('data-[state=open]:bg-emerald-50');
   expect(source).toContain('t("diagram.moreTypes")');
   expect(source).toContain('group-data-[state=open]:rotate-180');
+  expect(source).toContain("edgeever-create-memo-split__more-label");
+  expect(css).toContain(".edgeever-create-memo-split__more-label");
+  expect(css).toContain("@container (max-width: 11.749rem)");
   expect(source).not.toContain('focus-visible:ring-inset focus-visible:ring-emerald-500');
   expect(source).not.toContain('title={t("notebookPane.newMemo")}');
 });

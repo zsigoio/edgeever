@@ -26,7 +26,7 @@ on:
         description: App Store marketing version to inspect
         required: false
         type: string
-        default: "1.67.0"
+        default: "1.70.0"
       app_store_build_id:
         description: App Store Connect build resource ID to inspect
         required: false
@@ -357,16 +357,19 @@ jobs:
 
       - name: Submit App Store build for review
         env:
-          APP_STORE_BUILD_NUMBER: "47"
+          APP_STORE_BUILD_NUMBER: "48"
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.EDGEEVER_APPLE_API_ISSUER }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.EDGEEVER_APPLE_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.EDGEEVER_APPLE_API_KEY_BASE64 }}
           APP_STORE_RELEASE_NOTES_ZH: |-
-            笔记里的 AI 生成改为从本机直连模型并实时流式输出，不再绕过云端实例。
-            客户端新于云端实例时，系统信息给出安静提示，并按 Cloudflare 或 Docker 说明如何更新。
+            可从选中文字或整篇笔记打开 AI 助手，并记住你上次使用的操作。
+            内置提示改为笔记工作流：用「提取待办」和「继续写作」替换小红书、推特风格模板；对整篇笔记打开助手时默认进入自定义指令。升级后这两个出厂模板（含已编辑版本）会被移除，自建提示词不受影响。
           APP_STORE_RELEASE_NOTES_EN: |-
-            Stream AI note generation from the device by calling the model host directly, instead of going through the cloud instance.
-            When this client is newer than the connected instance, show a quiet system-info hint with the matching Cloudflare or Docker update path.
+            Open the AI assistant from a selection or the whole note, and remember the last action you used.
+            Replace the Xiaohongshu and X/Twitter factory prompts with Extract tasks and Continue writing. Opening the assistant on a whole note now starts on a custom instruction. After upgrade, those two factory presets—including edited copies—are removed; prompts you created yourself are kept.
+          APP_STORE_RELEASE_NOTES_JA: |-
+            選択範囲またはノート全体から AI アシスタントを開けます。前回使った操作も覚えます。
+            内蔵プロンプトをノート向けの作業に変更しました。「やることを抽出」「続きを書く」で、小紅書や X/Twitter 向けの初期テンプレートを置き換えます。ノート全体でアシスタントを開くと、カスタム指示から始まります。アップグレード後、これら 2 つの初期テンプレート（編集済みのコピーを含む）は削除されます。自分で作ったプロンプトは残ります。
           APP_STORE_VERSION: ${{ inputs.app_store_version }}
         run: fastlane ios submit_review
         working-directory: apps/ios
