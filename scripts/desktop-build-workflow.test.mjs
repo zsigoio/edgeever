@@ -64,7 +64,7 @@ describe("desktop release workflow", () => {
   test("runs architecture-independent checks once", () => {
     for (const name of [
       "Cache Bun dependencies for shared validation",
-      "Verify Web performance budget",
+      "Verify Web precache budget",
       "Run project type checks",
       "Build debug sidecar for integration tests",
       "Run desktop regression tests",

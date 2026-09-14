@@ -19,8 +19,8 @@ describe("lazy Japanese catalog", () => {
     expect(mobileEditorSource).toContain("void bootstrapI18n().then(() => {");
   });
 
-  test("keeps the Japanese chunk out of HTML modulepreload and caches it after first use", () => {
-    expect(viteConfig).toContain("globPatterns: []");
+  test("keeps the Japanese chunk out of PWA precache and HTML modulepreload", () => {
+    expect(viteConfig).toContain('"**/i18n-ja-*.js"');
     expect(viteConfig).toContain("name: \"i18n-ja\"");
     expect(viteConfig).toContain("edgeever-optional-locales");
     expect(viteConfig).toContain("i18n-ja-");
