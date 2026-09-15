@@ -752,6 +752,7 @@ export const WorkspaceApp = ({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const autoSelectedDemoNotebookRef = useRef(false);
   const [createdMemoEditId, setCreatedMemoEditId] = useState<string | null>(null);
+  const [pendingEditorInsert, setPendingEditorInsert] = useState<{ memoId: string; files: File[] } | null>(null);
   const pendingCreatedMemoIdRef = useRef<string | null>(null);
   const pendingQuickSwitcherMemoIdRef = useRef<string | null>(null);
   const creatingMemoSelectionRef = useRef(false);
@@ -2181,6 +2182,32 @@ export const WorkspaceApp = ({
     setNotebookDeleteConfirmation(notebook);
   };
 
+  const handleImportScreenshot = useCallback(async (payload: { name: string; type: string; title?: string; bytes: Uint8Array }) => {
+    const notebookId = selectedNotebookId && notebooks.some((notebook) => notebook.id === selectedNotebookId) && memoView !== "trash"
+      ? selectedNotebookId
+      : defaultMemoNotebookId;
+    if (!notebookId) return;
+
+    const source = payload.bytes instanceof Uint8Array ? payload.bytes : new Uint8Array(payload.bytes);
+    const bytes = new Uint8Array(source.byteLength);
+    bytes.set(source);
+    const file = new File([bytes], payload.name || "screenshot.png", { type: payload.type || "image/png" });
+    setTemplatesOpen(false);
+    setMobileBottomNavActive("home");
+    creatingMemoSelectionRef.current = true;
+    try {
+      const data = await createMemoMutation.mutateAsync({
+        notebookId,
+        title: payload.title?.trim() || "",
+        contentMarkdown: "",
+        tags: [],
+      });
+      setPendingEditorInsert({ memoId: data.memo.id, files: [file] });
+    } catch {
+      creatingMemoSelectionRef.current = false;
+    }
+  }, [createMemoMutation, defaultMemoNotebookId, memoView, notebooks, selectedNotebookId]);
+
   const handleCreateMemo = (kind?: DiagramKind) => {
     const targetNotebookId = createMemoNotebookId;
 
@@ -2844,11 +2871,15 @@ export const WorkspaceApp = ({
       const title = payload.name.replace(/\.(?:md|markdown)$/i, "").trim();
       createMemoMutation.mutate({ notebookId, title, contentMarkdown: payload.content, tags: [] });
     });
+    const removeScreenshotListener = bridge.onImportScreenshot?.((payload) => {
+      void handleImportScreenshot(payload);
+    }) ?? (() => {});
     return () => {
       removeCommandListener();
       removeMarkdownListener();
+      removeScreenshotListener();
     };
-  }, [createMemoMutation, defaultMemoNotebookId, handleCreateMemo, handleCreateNotebook, handleGlobalSearch, notebooks, selectedNotebookId, toggleDesktopFocusMode]);
+  }, [createMemoMutation, defaultMemoNotebookId, handleCreateMemo, handleCreateNotebook, handleGlobalSearch, handleImportScreenshot, notebooks, selectedNotebookId, toggleDesktopFocusMode]);
 
   const handleWorkspaceBackRequest = useCallback(() => {
     if (appNoticeDialog) {
@@ -3668,6 +3699,8 @@ export const WorkspaceApp = ({
                     onToggleDesktopFocusMode={toggleDesktopFocusMode}
                     editorContentAlignment={editorContentAlignment}
                     mobileDefaultEditMemoId={createdMemoEditId}
+                    pendingInsertFiles={pendingEditorInsert}
+                    onPendingInsertFilesConsumed={() => setPendingEditorInsert(null)}
                     isTrashView={memoView === "trash"}
                     notebooks={notebooks}
                     isLoading={memoQuery.isLoading}
