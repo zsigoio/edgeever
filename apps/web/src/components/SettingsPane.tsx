@@ -74,6 +74,10 @@ interface TabItem {
   label: string;
   badge?: string;
   icon: React.ComponentType<{ className?: string }>;
+  colorClass: string;
+  bgColorClass: string;
+  hoverColorClass: string;
+  iconColorClass: string;
 }
 
 export const SettingsPane = ({
@@ -107,16 +111,28 @@ export const SettingsPane = ({
       key: "general",
       label: t("settings.tabs.general"),
       icon: SlidersHorizontal,
+      colorClass: "text-emerald-700",
+      bgColorClass: "bg-emerald-50/80",
+      hoverColorClass: "hover:bg-emerald-50/40",
+      iconColorClass: "text-emerald-600",
     },
     {
       key: "ai",
       label: t("settings.tabs.ai"),
       icon: Sparkles,
+      colorClass: "text-emerald-700",
+      bgColorClass: "bg-emerald-50/80",
+      hoverColorClass: "hover:bg-emerald-50/40",
+      iconColorClass: "text-emerald-600",
     },
     {
       key: "data",
       label: t("settings.tabs.data"),
       icon: Database,
+      colorClass: "text-emerald-700",
+      bgColorClass: "bg-emerald-50/80",
+      hoverColorClass: "hover:bg-emerald-50/40",
+      iconColorClass: "text-emerald-600",
     },
     ...(isOwner
       ? [
@@ -124,6 +140,10 @@ export const SettingsPane = ({
             key: "users" as const,
             label: t("users.title"),
             icon: Users,
+            colorClass: "text-emerald-700",
+            bgColorClass: "bg-emerald-50/80",
+            hoverColorClass: "hover:bg-emerald-50/40",
+            iconColorClass: "text-emerald-600",
           },
         ]
       : []),
@@ -131,11 +151,19 @@ export const SettingsPane = ({
       key: "advanced",
       label: t("settings.tabs.advanced"),
       icon: Wrench,
+      colorClass: "text-emerald-700",
+      bgColorClass: "bg-emerald-50/80",
+      hoverColorClass: "hover:bg-emerald-50/40",
+      iconColorClass: "text-emerald-600",
     },
     {
       key: "account",
       label: t("settings.tabs.account"),
       icon: Shield,
+      colorClass: "text-emerald-700",
+      bgColorClass: "bg-emerald-50/80",
+      hoverColorClass: "hover:bg-emerald-50/40",
+      iconColorClass: "text-emerald-600",
     },
   ];
 
@@ -161,6 +189,14 @@ export const SettingsPane = ({
       return activeItem ? activeItem.icon : User;
     }
     return User;
+  })();
+
+  const HeaderIconColorClass = (() => {
+    if (activeMobileTab !== null) {
+      const activeItem = tabItems.find((item) => item.key === activeMobileTab);
+      return activeItem ? activeItem.iconColorClass : "text-emerald-700";
+    }
+    return "text-emerald-700";
   })();
 
   const renderTabContent = (key: TabKey) => {
@@ -243,7 +279,7 @@ export const SettingsPane = ({
           </Button>
           <div className="min-w-0">
             <h1 className={`flex items-center gap-2 ${WORKSPACE_PAGE_TITLE_CLASSNAME}`}>
-              <HeaderIcon className="h-4 w-4 shrink-0 text-slate-900" />
+              <HeaderIcon className={cn("h-4 w-4 shrink-0 transition-colors", HeaderIconColorClass)} />
               <span className="truncate text-slate-900">{getHeaderTitle()}</span>
             </h1>
           </div>
@@ -313,8 +349,8 @@ export const SettingsPane = ({
                   className="flex w-full items-center justify-between gap-4 p-4 text-left transition-colors hover:bg-slate-50/50"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                      <LayoutTemplate className="h-4 w-4 text-slate-700" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50/80">
+                      <LayoutTemplate className="h-4 w-4 text-emerald-600" />
                     </div>
                     <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.templates")}</span>
                   </div>
@@ -326,8 +362,8 @@ export const SettingsPane = ({
                   className="flex w-full items-center justify-between gap-4 border-t border-slate-100 p-4 text-left transition-colors hover:bg-slate-50/50"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                      <Sparkles className="h-4 w-4 text-slate-700" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50/80">
+                      <Sparkles className="h-4 w-4 text-emerald-600" />
                     </div>
                     <span className="text-xs font-normal leading-5 text-slate-800">{t("nav.prompts")}</span>
                   </div>
@@ -345,12 +381,12 @@ export const SettingsPane = ({
                       className="flex w-full items-center justify-between gap-4 p-4 text-left transition-colors hover:bg-slate-50/50"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                          <Icon className="h-4 w-4 text-slate-700" />
+                        <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", item.bgColorClass)}>
+                          <Icon className={cn("h-4 w-4", item.iconColorClass)} />
                         </div>
                         <span className="text-xs font-normal leading-5 text-slate-800">{item.label}</span>
                         {item.badge ? (
-                          <span className="rounded-full border border-slate-200 bg-slate-100 px-1.5 text-xs font-normal leading-5 text-slate-600">
+                          <span className="rounded-full border border-emerald-200/80 bg-emerald-50 px-1.5 text-xs font-normal leading-5 text-emerald-700">
                             {item.badge}
                           </span>
                         ) : null}
@@ -364,12 +400,12 @@ export const SettingsPane = ({
                 <button
                   type="button"
                   onClick={() => setSystemInfoOpen(true)}
-                  className="flex min-h-16 w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-slate-600 transition-colors hover:bg-slate-200/50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/20"
+                  className="flex min-h-16 w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-slate-600 transition-colors hover:bg-slate-200/50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
                 >
                   <span className="flex min-w-0 items-center gap-3">
-                    <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                      <Info className="h-4 w-4 text-slate-700" />
-                      {deployedUpdateUnseen ? <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-2 ring-card" /> : null}
+                    <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50/80">
+                      <Info className="h-4 w-4 text-emerald-600" />
+                      {deployedUpdateUnseen ? <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-2 ring-white" /> : null}
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold">{t("systemInfo.title")}</span>

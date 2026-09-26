@@ -39,7 +39,6 @@ import { MemoEditorFocusModeButton, MemoEditorTopRowLeading, MemoEditorUpdatedLa
 import { MemoEditorToolbarDivider } from "@/components/MemoEditorToolbarChrome";
 import {
   MEMO_EDITOR_READING_GUTTER_CLASS_NAME,
-  MEMO_EDITOR_READING_GUTTER_PROPERTIES_CLASS_NAME,
   MEMO_EDITOR_TOP_ROW_CLASS_NAME,
   nextTitleStatusClearance,
 } from "@/components/MemoEditorChromeDensity";
@@ -350,7 +349,7 @@ export const EditorPane = (props: EditorPaneProps) => {
 
   if (editingActive) {
     return (
-      <div className="flex h-full min-h-0 items-center justify-center bg-transparent text-sm font-medium text-slate-400">
+      <div className="flex h-full min-h-0 items-center justify-center bg-card text-sm font-medium text-slate-400">
         {t("editor.openEditor")}
       </div>
     );
@@ -3339,7 +3338,7 @@ const RichEditorPane = ({
 
   if (isSelectionMode) {
     return (
-      <div className="flex h-full min-w-0 flex-col bg-transparent">
+      <div className="flex h-full min-w-0 flex-col bg-card">
         {selectionActionBar}
       </div>
     );
@@ -3347,7 +3346,7 @@ const RichEditorPane = ({
 
   if (isLoading && !memo) {
     return (
-      <div className="flex h-full min-w-0 flex-col bg-transparent">
+      <div className="flex h-full min-w-0 flex-col bg-card">
         <EmptyEditorHeader />
         {selectionActionBar}
         <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-slate-500">{t("editor.loading")}</div>
@@ -3357,7 +3356,7 @@ const RichEditorPane = ({
 
   if (!memo) {
     return (
-      <div className="flex h-full min-w-0 flex-col bg-transparent">
+      <div className="flex h-full min-w-0 flex-col bg-card">
         <EmptyEditorHeader />
         {selectionActionBar}
         <div className="flex min-h-0 flex-1 items-center justify-center px-8 text-center">
@@ -3390,7 +3389,7 @@ const RichEditorPane = ({
     imageUploadState === "error"
       ? "bg-rose-50 text-rose-700"
       : imageUploadState !== "idle"
-        ? "bg-slate-100 text-slate-700"
+        ? "bg-emerald-50 text-emerald-700"
         : saveStateClassName;
 
   const updatedLabel = formatDateTime(memo.updatedAt);
@@ -3714,7 +3713,7 @@ const RichEditorPane = ({
                   "hidden rounded-md px-2 py-1 text-xs font-medium md:inline-flex",
                   imageUploadState === "error"
                     ? "bg-rose-50 text-rose-700"
-                    : "bg-slate-100 text-slate-700"
+                    : "bg-emerald-50 text-emerald-700"
                 )}
               >
                 {imageUploadState === "error"
@@ -3927,12 +3926,12 @@ const RichEditorPane = ({
                   <DropdownMenuItem
                     className={cn(
                       "flex h-9 w-full items-center gap-2 px-3 text-left text-xs hover:bg-slate-50 cursor-pointer outline-none",
-                      isMemoShared ? "bg-workspace-selection text-slate-950" : "text-slate-700",
+                      isMemoShared ? "bg-emerald-50 text-emerald-800" : "text-slate-700",
                     )}
                     disabled={isLocalMemoId(memo.id)}
                     onClick={() => setShareOpen(true)}
                   >
-                    <Share2 className={cn("h-4 w-4", isMemoShared ? "text-slate-950" : "text-slate-500")} />
+                    <Share2 className={cn("h-4 w-4", isMemoShared ? "text-emerald-600" : "text-slate-500")} />
                     {t(isLocalMemoId(memo.id) ? "sharing.afterSync" : isMemoShared ? "sharing.manage" : "sharing.action")}
                   </DropdownMenuItem>
                 )}
@@ -4097,7 +4096,6 @@ const RichEditorPane = ({
         } as CSSProperties}
         className={cn(
           "edgeever-editor relative min-h-0 flex-1 bg-transparent",
-          MEMO_EDITOR_READING_GUTTER_PROPERTIES_CLASS_NAME,
           useMobilePlainTextEditor
             ? "overflow-visible"
             : useMarkdownSourceEditor
@@ -4171,7 +4169,7 @@ const RichEditorPane = ({
                 />
                 <div className="absolute right-3 top-3 flex gap-2">
                   <button
-                    className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-sm font-semibold text-slate-50 shadow-sm"
+                    className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800 shadow-sm"
                     type="button"
                     onClick={() => void handleMobileClipboardInput()}
                   >
