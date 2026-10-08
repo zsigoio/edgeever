@@ -1922,56 +1922,6 @@ html[data-edgeever-extension-theme] .edgeever-memo-divider {
   animation: edgeever-image-placeholder-spin 700ms linear infinite;
 }
 
-.ProseMirror .edgeever-file-upload-placeholder {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: min(100%, 48rem);
-  min-height: 3.5rem;
-  margin: 0.5rem 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--brand-green-border);
-  border-radius: 0.75rem;
-  background: rgb(var(--slate-100-rgb) / 0.55);
-  box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
-  line-height: normal;
-}
-
-.ProseMirror .edgeever-file-upload-placeholder__icon {
-  display: flex;
-  flex: none;
-  width: 1.4rem;
-  height: 1.4rem;
-  color: var(--brand-green);
-}
-
-.ProseMirror .edgeever-file-upload-placeholder__icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.ProseMirror .edgeever-file-upload-placeholder__filename {
-  min-width: 0;
-  overflow: hidden;
-  color: rgb(var(--slate-800-rgb));
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ProseMirror .edgeever-file-upload-placeholder__status {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 0.4rem;
-  margin-left: auto;
-  color: rgb(var(--slate-500-rgb));
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 @keyframes edgeever-image-placeholder-shimmer {
   to { background-position: calc(100% + 18rem) 0, 0 0; }
 }

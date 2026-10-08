@@ -1236,7 +1236,7 @@ export const enUS = {
     copied: "Copied",
     insertIntoNote: "Insert into note",
     retry: "Retry transcription",
-    attachmentNotice: "Audio is extracted and split on this client, then sent segment by segment directly to the selected speech service.",
+    attachmentNotice: "Only audio and video attachments already uploaded to notes can be transcribed. Audio is extracted and split on your device (up to 24 MB per segment), then sent directly from the client to your configured model service. The model key is given to the current signed-in client; browser calls also require provider CORS support.",
   },
   aiPrompts: {
     title: "Prompt library",
@@ -2542,9 +2542,6 @@ export const enUS = {
     title: "Members",
     description: "Create isolated personal note spaces for family or team members. Public registration stays disabled.",
     loading: "Loading accounts...",
-    createdAt: "Created {{time}}",
-    lastLoginAt: "Last signed in {{time}}",
-    noLoginRecord: "No sign-in recorded",
     create: "Add member",
     creating: "Creating...",
     createTitle: "Add new member",

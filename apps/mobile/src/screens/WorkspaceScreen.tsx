@@ -19,7 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert, Pressable, Text } from "../components/LocalizedText";
 import { ApiRequestError } from "@edgeever/client";
-import { DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, markdownToDoc, type MemoDetail, type MemoSummary, type Notebook } from "@edgeever/shared";
+import { DEFAULT_MEMO_TITLE, getNotebookScopeIds, hasDiagramDocumentMarker, markdownToDoc, type MemoDetail, type Notebook } from "@edgeever/shared";
 import { MOBILE_UI_METRICS, toggleMobileMemoFilterMode } from "@edgeever/shared/mobile-ui";
 import { clearMobileMemoDraft, readMobileMemoDraft, type MobileMemoDraft } from "../lib/mobile-drafts";
 import {
@@ -111,7 +111,6 @@ import {
 import { RevisionHistoryModal } from "./WorkspaceRevisionHistory";
 import { CreateMemoModal } from "./WorkspaceEditors";
 import {
-  MemoContextActionsModal,
   NotesActionsModal,
   SelectionActionBar,
   SelectionMoreModal,
@@ -166,8 +165,6 @@ export const WorkspaceScreen = ({
   const [showDescendantNotes, setShowDescendantNotes] = useState<boolean | null>(null);
   const [showDescendantNotesSaveFailed, setShowDescendantNotesSaveFailed] = useState(false);
   const [selectedMemoId, setSelectedMemoId] = useState<string | null>(null);
-  const [contextMemo, setContextMemo] = useState<MemoSummary | null>(null);
-  const [imageShareFromList, setImageShareFromList] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [createSeed, setCreateSeed] = useState<MobileCreateMemoSeed | null>(null);
@@ -404,7 +401,6 @@ export const WorkspaceScreen = ({
       return;
     }
 
-    setImageShareFromList(false);
     setSelectedMemoId(memoId);
   };
 
@@ -453,7 +449,6 @@ export const WorkspaceScreen = ({
 
   const closeDetail = () => {
     setSelectedMemoId(null);
-    setImageShareFromList(false);
   };
 
   const closeRichEditor = () => {
@@ -1000,7 +995,7 @@ export const WorkspaceScreen = ({
   });
 
   const shareMemoMutation = useMutation({
-    mutationFn: async (memo: Pick<MemoSummary, "id" | "title">) => {
+    mutationFn: async (memo: MemoDetail) => {
       if (!client || !session) {
         throw new Error("Client is not ready");
       }
@@ -1268,7 +1263,7 @@ export const WorkspaceScreen = ({
           onMemoPress={handleMemoPress}
           onMemoLongPress={(memo) => {
             Vibration.vibrate(8);
-            setContextMemo(memo);
+            selectSingleMemo(memo.id);
           }}
           onLoadMore={() => {
             const query = searchActive ? searchQuery : memosQuery;
@@ -1313,7 +1308,6 @@ export const WorkspaceScreen = ({
       <MemoDetailModal
         editingSession={richEditingSession}
         imageCompressionEnabled={imageCompressionEnabled}
-        imageShareFromList={imageShareFromList}
         initialSearchQuery={selectedMemoId ? searchText.trim() : ""}
         isDeleting={deleteMemoMutation.isPending}
         isLoading={memoDetailQuery.isLoading}
@@ -1344,29 +1338,6 @@ export const WorkspaceScreen = ({
         updateMutation={localUpdateMemoMutation}
         visible={Boolean(selectedMemoId)}
       />
-
-      {contextMemo ? (
-        <MemoContextActionsModal
-          bottomOffset={52 + safeAreaInsets.bottom}
-          canShare={!contextMemo.isDeleted}
-          memoTitle={localizeUntitledMemoTitle(contextMemo.title, resolvedLocale)}
-          onClose={() => setContextMemo(null)}
-          onSelect={() => {
-            selectSingleMemo(contextMemo.id);
-            setContextMemo(null);
-          }}
-          onShare={() => {
-            shareMemoMutation.mutate(contextMemo);
-            setContextMemo(null);
-          }}
-          onShareImage={() => {
-            setContextMemo(null);
-            setImageShareFromList(true);
-            setSelectedMemoId(contextMemo.id);
-          }}
-          visible
-        />
-      ) : null}
 
       {notebookPickerOpen ? <NotebookPickerModal
         activeNotebookId={activeNotebookId}

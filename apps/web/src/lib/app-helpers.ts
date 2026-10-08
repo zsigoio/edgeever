@@ -69,14 +69,6 @@ export const isTextEntryTarget = (target: EventTarget | null) =>
 export const getSearchShortcutScope = (selectedMemoId: string | null): "note" | "memo-list" =>
   selectedMemoId ? "note" : "memo-list";
 
-export const getCreateMemoNotebookId = (
-  selectedNotebookId: string | null,
-  notebooks: ReadonlyArray<Pick<Notebook, "id">>,
-  defaultNotebookId: string | null,
-) => selectedNotebookId
-  ? notebooks.some((notebook) => notebook.id === selectedNotebookId) ? selectedNotebookId : null
-  : defaultNotebookId;
-
 export const getNotebookAncestorIds = (nodes: NotebookNode[], targetNotebookId: string) => {
   const walk = (items: NotebookNode[], ancestors: string[]): string[] | null => {
     for (const node of items) {

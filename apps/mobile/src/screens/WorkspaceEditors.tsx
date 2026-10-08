@@ -28,7 +28,6 @@ import { queueMobileMemoCreate, queueMobileMemoUpdate } from "../lib/sync-queue"
 import { createMobileDataScope, upsertLocalMemo } from "../lib/local-mirror";
 import { recordEditorStartup } from "../lib/startup-performance";
 import { prepareUploadAsset, type MobileImageUploadAsset } from "../lib/mobile-image-upload";
-import { uploadMobileResource } from "../lib/mobile-resource-upload";
 import MobileWebClipCapture from "../components/MobileWebClipCapture";
 import LocalTiptapEditor, { type LocalTiptapEditorRef } from "../components/LocalTiptapEditor";
 import { SAFE_DOM_WEBVIEW_PROPS } from "../lib/mobile-dom";
@@ -534,7 +533,7 @@ export const CreateMemoModal = ({
       const memo = await materializeMemoForImage();
       setImageOperation("uploading");
       const uploadAsset = await prepareUploadAsset(asset, imageCompressionEnabled);
-      const { resource } = await uploadMobileResource(client!, memo.id, uploadAsset);
+      const { resource } = await client!.uploadMemoResource(memo.id, new ExpoFile(uploadAsset.uri));
       applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "图片" : "附件"));
       if (resource.kind === "image" && !keepBusy) {
         safeDomCall(() => editorRef.current?.finishImageBatch([resource.url]));
@@ -1030,7 +1029,7 @@ export const RichEditorModal = ({
           safeDomCall(() => editorRef.current?.beginImageUpload(uploadId, previewDataUrl));
         }
         const uploadAsset = await prepareUploadAsset(asset, imageCompressionEnabled);
-        const { resource } = await uploadMobileResource(client, memo.id, uploadAsset);
+        const { resource } = await client.uploadMemoResource(memo.id, new ExpoFile(uploadAsset.uri));
         applyMobileEditorUpload(editorRef, resource, uploadId, uploadAsset.name || (resource.kind === "image" ? "图片" : "附件"));
         if (resource.kind === "image") sources.push(resource.url);
         uploadId = null;

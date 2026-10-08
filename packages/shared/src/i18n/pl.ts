@@ -1236,7 +1236,7 @@ export const pl = {
     copied: "Skopiowano",
     insertIntoNote: "Wstaw do notatki",
     retry: "Ponów transkrypcję",
-    attachmentNotice: "Ścieżka audio jest wyodrębniana i dzielona na tym urządzeniu, a następnie wysyłana segment po segmencie bezpośrednio do wybranej usługi rozpoznawania mowy.",
+    attachmentNotice: "Transkrypcja działa tylko dla plików audio i wideo dodanych do notatek. Dźwięk jest wyodrębniany i dzielony na urządzeniu (do 24 MB na segment), a następnie wysyłany bezpośrednio z klienta do skonfigurowanej usługi modelu. Klucz modelu trafia do aktualnie zalogowanego klienta; przeglądarka wymaga też obsługi CORS przez dostawcę.",
   },
   aiPrompts: {
     title: "Biblioteka promptów",
@@ -2542,9 +2542,6 @@ export const pl = {
     title: "Członkowie",
     description: "Twórz odizolowane, osobiste przestrzenie notatek dla członków rodziny lub zespołu. Publiczna rejestracja pozostaje wyłączona.",
     loading: "Wczytywanie kont...",
-    createdAt: "Utworzono: {{time}}",
-    lastLoginAt: "Ostatnie logowanie: {{time}}",
-    noLoginRecord: "Brak zapisanego logowania",
     create: "Dodaj członka",
     creating: "Tworzenie...",
     createTitle: "Dodaj nowego członka",

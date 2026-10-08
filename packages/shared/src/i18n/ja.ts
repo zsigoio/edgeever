@@ -1236,7 +1236,7 @@ export const ja = {
     copied: "コピーしました",
     insertIntoNote: "ノートに挿入",
     retry: "文字起こしを再試行",
-    attachmentNotice: "音声トラックをこのクライアントで抽出・分割し、選択した音声認識サービスへ各部分を直接送信します。",
+    attachmentNotice: "ノートにアップロード済みの音声・動画添付ファイルのみ文字起こしできます。音声は端末上で抽出・分割され（各部分は最大 24 MB）、クライアントから設定したモデルサービスへ直接送信されます。モデルキーは現在ログイン中のクライアントに渡され、ブラウザーからの通信には提供元の CORS 対応も必要です。",
   },
   aiPrompts: {
     title: "プロンプトライブラリ",
@@ -2542,9 +2542,6 @@ export const ja = {
     title: "メンバー",
     description: "家族やチーム向けに、分離された個人ノート空間を作成します。公開登録はオフのままです。",
     loading: "アカウントを読み込み中...",
-    createdAt: "作成日時：{{time}}",
-    lastLoginAt: "最終ログイン：{{time}}",
-    noLoginRecord: "ログイン記録なし",
     create: "メンバーを追加",
     creating: "作成中...",
     createTitle: "新しいメンバーを追加",

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { MemoSortMode } from "@edgeever/client";
 import { Modal, ScrollView, View } from "react-native";
-import { Check, CheckSquare, FileText, Folder, Image, List, MoreVertical, Share2, Sparkles, Tag, Trash2, X } from "../components/icons";
+import { Check, CheckSquare, FileText, Folder, List, MoreVertical, Sparkles, Tag, Trash2, X } from "../components/icons";
 import { Pressable, Text } from "../components/LocalizedText";
 import type { MobileMemoListDensity } from "../lib/preferences";
 import { styles } from "./workspace-styles";
@@ -149,51 +149,6 @@ export const NotesActionsModal = ({
           <SheetOptionRow active={memoSortMode === "created-desc"} label="创建时间" onPress={() => onSortModeChange("created-desc")} />
           <SheetOptionRow active={memoSortMode === "title-asc"} label="标题 A-Z" onPress={() => onSortModeChange("title-asc")} />
         </ScrollView>
-      </Pressable>
-    </Pressable>
-  </Modal>
-);
-
-export const MemoContextActionsModal = ({
-  bottomOffset,
-  canShare,
-  memoTitle,
-  onClose,
-  onSelect,
-  onShare,
-  onShareImage,
-  visible,
-}: {
-  bottomOffset: number;
-  canShare: boolean;
-  memoTitle: string;
-  onClose: () => void;
-  onSelect: () => void;
-  onShare: () => void;
-  onShareImage: () => void;
-  visible: boolean;
-}) => (
-  <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
-    <Pressable onPress={onClose} style={[styles.actionSheetBackdrop, { paddingBottom: bottomOffset }]}>
-      <Pressable style={styles.listActionSheet}>
-        <View style={styles.actionSheetHandle} />
-        <View style={styles.listActionSheetHeader}>
-          <View style={styles.listActionSheetHeaderText}>
-            <Text numberOfLines={1} style={styles.actionSheetTitle}>笔记操作</Text>
-            <Text numberOfLines={1} style={styles.actionSheetSubtitle}>{memoTitle}</Text>
-          </View>
-          <Pressable accessibilityLabel="关闭" accessibilityRole="button" onPress={onClose} style={styles.sheetCloseButton}>
-            <X color="#0f172a" size={18} />
-          </Pressable>
-        </View>
-        {canShare ? (
-          <>
-            <ActionSheetItem icon={<Share2 color="#0f172a" size={18} />} label="分享笔记" onPress={onShare} />
-            <ActionSheetItem icon={<Image color="#0f172a" size={18} />} label="分享为图片" onPress={onShareImage} />
-            <View style={styles.listActionDivider} />
-          </>
-        ) : null}
-        <ActionSheetItem icon={<CheckSquare color="#0f172a" size={18} />} label="选择笔记" onPress={onSelect} />
       </Pressable>
     </Pressable>
   </Modal>
