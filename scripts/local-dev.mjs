@@ -188,10 +188,7 @@ const runProfileApi = (profile) => {
   assertChildSucceeded(result);
 };
 
-const runProfileWeb = async (profile) => {
-  // Browsers reconnect as soon as Vite listens. Keep the Web port closed until
-  // the worker can answer the first session request after a cold start.
-  await waitForLocalApi();
+const runProfileWeb = (profile) => {
   const result = spawnSync(process.execPath, ["run", "dev:web"], {
     cwd: resolve("."),
     env: {
@@ -384,7 +381,7 @@ const main = async () => {
   } else if (command === "api") {
     runProfileApi(profile);
   } else if (command === "web") {
-    await runProfileWeb(profile);
+    runProfileWeb(profile);
   } else if (command === "ready") {
     await waitForLocalApi();
     const session = profile.bootstrapAi ? await createProfileSession(profile) : null;
